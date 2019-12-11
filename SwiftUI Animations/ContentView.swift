@@ -11,19 +11,31 @@ import SwiftUI
 struct ContentView: View {
     
     @State private var animationValue = 0.0
+    @State private var enabled = false
+    @State private var dragAmount = CGSize.zero
+    let letters = Array("Hello World")
     
     var body: some View {
-        Button("Tap me"){
-            //do something
-            withAnimation(.interpolatingSpring(stiffness: 5, damping: 1)) {
-                self.animationValue += 360
+        HStack(spacing: 0) {
+            ForEach(0..<letters.count) { num in
+                Text(String(self.letters[num]))
+                    .padding(5)
+                    .font(.title)
+                    .background(self.enabled ? Color.blue : Color.red)
+                    .offset(self.dragAmount)
+                    .animation(Animation.default.delay(Double(num) / 20))
             }
         }
-        .padding(50)
-        .background(Color.red)
-        .foregroundColor(.white)
-        .clipShape(Circle())
-        .rotation3DEffect(.degrees(animationValue), axis: (x: 0, y: 1, z: 0))
+        .gesture(
+            DragGesture()
+                .onChanged {
+                    self.dragAmount = $0.translation
+            }
+                .onEnded { _ in
+                self.dragAmount = .zero
+                self.enabled.toggle()
+            }
+        )
     }
 }
 
@@ -82,3 +94,43 @@ struct ContentView_Previews: PreviewProvider {
 //            .scaleEffect(animationValue)
 ////            .animation(.default)
 //        }
+
+//Button("Tap me"){
+//    //do something
+//    withAnimation(.interpolatingSpring(stiffness: 5, damping: 1)) {
+//        self.animationValue += 360
+//    }
+//}
+//.padding(50)
+//.background(Color.red)
+//.foregroundColor(.white)
+//.clipShape(Circle())
+//.rotation3DEffect(.degrees(animationValue), axis: (x: 0, y: 1, z: 0))
+
+//Button("Tap me") {
+//    //do something
+//    self.enabled.toggle()
+//}
+//.frame(width: 200, height: 200)
+//.background(enabled ? Color.blue : Color.red)
+//.animation(.default)
+//.foregroundColor(.white)
+//.clipShape(RoundedRectangle(cornerRadius: self.enabled ? 60 : 0))
+//.animation(.interpolatingSpring(stiffness: 10, damping: 1))
+
+// LinearGradient(gradient: Gradient(colors: [.yellow, .red]), startPoint: .topLeading, endPoint: .bottomTrailing)
+//            .frame(width: 200, height: 200)
+//            .clipShape(RoundedRectangle(cornerRadius: 10))
+//            .offset(dragAmount)
+//        .gesture(
+//            DragGesture()
+//                .onChanged{
+//                    self.dragAmount = $0.translation
+//            }
+//            .onEnded { _ in
+//                withAnimation(.spring()) {
+//                    self.dragAmount = .zero
+//                }
+//            }
+//        )
+////            .animation(.spring())
