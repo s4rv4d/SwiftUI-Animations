@@ -8,34 +8,50 @@
 
 import SwiftUI
 
+//creating custom viewmodifier for custom rotation
+struct CornerRotationModifier: ViewModifier {
+    let amount: Double
+    let anchorPoint: UnitPoint
+    
+    //VM func
+    func body(content: Content) -> some View {
+        content.rotationEffect(.degrees(amount), anchor: anchorPoint)
+        .clipped()
+    }
+}
+
+extension AnyTransition {
+    static var pivot : AnyTransition {
+        .modifier(active: CornerRotationModifier(amount: -90, anchorPoint: .topLeading), identity: CornerRotationModifier(amount: 0, anchorPoint: .topLeading))
+    }
+}
+
 struct ContentView: View {
     
     @State private var animationValue = 0.0
     @State private var enabled = false
     @State private var dragAmount = CGSize.zero
     let letters = Array("Hello World")
+    @State private var isShowingRed = false
     
     var body: some View {
-        HStack(spacing: 0) {
-            ForEach(0..<letters.count) { num in
-                Text(String(self.letters[num]))
-                    .padding(5)
-                    .font(.title)
-                    .background(self.enabled ? Color.blue : Color.red)
-                    .offset(self.dragAmount)
-                    .animation(Animation.default.delay(Double(num) / 20))
+        VStack {
+            Button("Tap me") {
+                //do nothing
+                withAnimation {
+                    self.isShowingRed.toggle()
+                }
+            }
+            
+            if isShowingRed {
+                Rectangle()
+                .fill(Color.red)
+                .frame(width: 100, height: 100)
+//                    .transition(.scale)
+//                    .transition(.asymmetric(insertion: .scale, removal: .opacity))
+                    .transition(.pivot)
             }
         }
-        .gesture(
-            DragGesture()
-                .onChanged {
-                    self.dragAmount = $0.translation
-            }
-                .onEnded { _ in
-                self.dragAmount = .zero
-                self.enabled.toggle()
-            }
-        )
     }
 }
 
@@ -134,3 +150,25 @@ struct ContentView_Previews: PreviewProvider {
 //            }
 //        )
 ////            .animation(.spring())
+
+//
+//HStack(spacing: 0) {
+//    ForEach(0..<letters.count) { num in
+//        Text(String(self.letters[num]))
+//            .padding(5)
+//            .font(.title)
+//            .background(self.enabled ? Color.blue : Color.red)
+//            .offset(self.dragAmount)
+//            .animation(Animation.default.delay(Double(num) / 20))
+//    }
+//}
+//.gesture(
+//    DragGesture()
+//        .onChanged {
+//            self.dragAmount = $0.translation
+//    }
+//        .onEnded { _ in
+//        self.dragAmount = .zero
+//        self.enabled.toggle()
+//    }
+//)
